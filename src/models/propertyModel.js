@@ -67,10 +67,10 @@ module.exports = (sequelize, DataTypes) => {
     ownerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: "Agent",
-        key: "id",
-      },
+      // references: {
+      //   model: "Agent",
+      //   key: "id",
+      // },
     },
   });
 
