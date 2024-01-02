@@ -57,9 +57,10 @@ module.exports = (sequelize, DataTypes) => {
 
   // Modify values beforing creating \\
   User.beforeCreate(async (user, options) => {
-    user.name = user.name.trim();
-    user.password = user.password.trim();
-    user.password = await bcrypt.hash(user.password, 8);
+    const { name, password } = user;
+
+    user.name = name.trim();
+    user.password = await bcrypt.hash(password.trim(), 8);
     user.tokens = JSON.stringify([]);
   });
 
@@ -68,8 +69,11 @@ module.exports = (sequelize, DataTypes) => {
     if (user.changed("name")) {
       user.name = user.name.trim();
     } else if (user.changed("password")) {
-      user.password = user.password.trim();
-      user.password = await bcrypt.hash(user.password, 8);
+      const trimmedPassword = user.password.trim();
+
+      if (trimmedPassword !== user.password) {
+        user.password = await bcrypt.hash(trimmedPassword, 8);
+      }
     }
   });
 
@@ -98,28 +102,28 @@ module.exports = (sequelize, DataTypes) => {
       process.env.JWT_SECRET
     );
 
-    // Get the current tokens as an array
-    let tokens = JSON.parse(user.tokens || "[]");
+    try {
+      // Get the current tokens as an array
+      let tokens = JSON.parse(user.tokens || "[]");
 
-    // Add a new token object
-    tokens.push({ token });
+      // Add a new token object
+      tokens.push({ token });
 
-    // Update the 'tokens' field with the updated array by serializing it back to a string
-    user.tokens = JSON.stringify(tokens);
+      // Update the 'tokens' field with the updated array by serializing it back to a string
+      user.tokens = JSON.stringify(tokens);
 
-    // Save the updated tokens back to the database
-    await user.save();
+      // Save the updated tokens back to the database
+      await user.save();
+    } catch (e) {
+      throw new Error("Unable to generate authentication token");
+    }
 
     return token;
   };
 
   // Instance method to exclude sensitive fields from JSON serialization \\
   User.prototype.toJSON = function () {
-    const values = { ...this.get() };
-
-    delete values.password;
-    delete values.tokens;
-    delete values.avatar;
+    const { password, tokens, avatar, ...values } = this.get();
 
     return values;
   };

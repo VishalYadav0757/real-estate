@@ -36,7 +36,7 @@ const createProperty = async (req, res) => {
       price,
       area,
       status,
-      owner,
+      owner: owner || agentName,
       broker: broker || agentName,
       images,
       ownerId: ownerId || agentId,

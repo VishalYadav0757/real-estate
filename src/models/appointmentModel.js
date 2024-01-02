@@ -46,23 +46,24 @@ module.exports = (sequelize, DataTypes) => {
 
   // Modify values beforing creating \\
   Appointment.beforeCreate(async (appointment, options) => {
-    appointment.scheduler = appointment.scheduler.trim();
-    appointment.reason = appointment.reason.trim();
-    appointment.duration = appointment.duration.trim();
-    appointment.time = appointment.time.trim();
+    const propertiesToTrim = ["scheduler", "reason", "duration", "time"];
+
+    propertiesToTrim.forEach((prop) => {
+      if (appointment.changed(prop)) {
+        appointment[prop] = appointment[prop].trim();
+      }
+    });
   });
 
   // Modify values beforing updating \\
   Appointment.beforeUpdate(async (appointment, options) => {
-    if (appointment.changed("reason")) {
-      appointment.reason = appointment.reason.trim();
-    } else if (appointment.changed("duration")) {
-      appointment.duration = appointment.duration.trim();
-    } else if (appointment.changed("time")) {
-      appointment.time = appointment.time.trim();
-    } else if (appointment.changed("scheduler")) {
-      appointment.scheduler = appointment.scheduler.trim();
-    }
+    const propertiesToTrim = ["reason", "duration", "time", "scheduler"];
+
+    propertiesToTrim.forEach((prop) => {
+      if (appointment.changed(prop)) {
+        appointment[prop] = appointment[prop].trim();
+      }
+    });
   });
 
   // Instance method to generate room id \\

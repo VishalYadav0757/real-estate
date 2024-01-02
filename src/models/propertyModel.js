@@ -67,35 +67,33 @@ module.exports = (sequelize, DataTypes) => {
     ownerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: "Agent",
-        key: "id",
-      },
+      // references: {
+      //   model: "Agent",
+      //   key: "id",
+      // },
     },
   });
 
   // Modify values beforing creating \\
   Property.beforeCreate(async (property, options) => {
-    property.name = property.name.trim();
-    property.type = property.type.trim();
-    property.status = property.status.trim();
-    property.owner = property.owner.trim();
-    property.broker = property.broker.trim();
+    const fieldsToTrim = ["name", "type", "status", "owner", "broker"];
+
+    fieldsToTrim.forEach((field) => {
+      if (property[field]) {
+        property[field] = property[field].trim();
+      }
+    });
   });
 
   // Modify values beforing updating \\
   Property.beforeUpdate(async (property, options) => {
-    if (property.changed("name")) {
-      property.name = property.name.trim();
-    } else if (property.changed("type")) {
-      property.type = property.type.trim();
-    } else if (property.changed("status")) {
-      property.status = property.status.trim();
-    } else if (property.changed("owner")) {
-      property.owner = property.owner.trim();
-    } else if (property.changed("broker")) {
-      property.broker = property.broker.trim();
-    }
+    const fieldsToTrim = ["name", "type", "status", "owner", "broker"];
+
+    fieldsToTrim.forEach((field) => {
+      if (property.changed(field)) {
+        property[field] = property[field].trim();
+      }
+    });
   });
 
   return Property;

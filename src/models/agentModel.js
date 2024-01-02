@@ -70,20 +70,27 @@ module.exports = (sequelize, DataTypes) => {
 
   // Modify values beforing creating \\
   Agent.beforeCreate(async (agent, options) => {
-    agent.name = agent.name.trim();
-    agent.password = agent.password.trim();
-    agent.password = await bcrypt.hash(agent.password, 8);
-    agent.tokens = JSON.stringify([]);
-    agent.property = JSON.stringify([]);
+    const trimmedName = agent.name.trim();
+    const trimmedPassword = agent.password.trim();
+    const hashedPassword = await bcrypt.hash(trimmedPassword, 8);
+
+    Object.assign(agent, {
+      name: trimmedName,
+      password: hashedPassword,
+      tokens: JSON.stringify([]),
+      property: JSON.stringify([]),
+    });
   });
 
   // Modify values beforing updating \\
   Agent.beforeUpdate(async (agent, options) => {
     if (agent.changed("name")) {
       agent.name = agent.name.trim();
-    } else if (agent.changed("password")) {
-      agent.password = agent.password.trim();
-      agent.password = await bcrypt.hash(agent.password, 8);
+    }
+
+    if (agent.changed("password")) {
+      const trimmedPassword = agent.password.trim();
+      agent.password = await bcrypt.hash(trimmedPassword, 8);
     }
   });
 
@@ -112,28 +119,28 @@ module.exports = (sequelize, DataTypes) => {
       process.env.JWT_SECRET
     );
 
-    // Get the current tokens as an array
-    let tokens = JSON.parse(agent.tokens || "[]");
+    try {
+      // Get the current tokens as an array
+      let tokens = JSON.parse(agent.tokens || "[]");
 
-    // Add a new token object
-    tokens.push({ token });
+      // Add a new token object
+      tokens.push({ token });
 
-    // Update the 'tokens' field with the updated array by serializing it back to a string
-    agent.tokens = JSON.stringify(tokens);
+      // Update the 'tokens' field with the updated array by serializing it back to a string
+      agent.tokens = JSON.stringify(tokens);
 
-    // Save the updated tokens back to the database
-    await agent.save();
+      // Save the updated tokens back to the database
+      await agent.save();
+    } catch (e) {
+      throw new Error("Unable to generate authentication token !!");
+    }
 
     return token;
   };
 
   // Instance method to exclude sensitive fields from JSON serialization \\
   Agent.prototype.toJSON = function () {
-    const values = { ...this.get() };
-
-    delete values.password;
-    delete values.tokens;
-    delete values.avatar;
+    const { password, tokens, avatar, ...values } = { ...this.get() };
 
     return values;
   };
