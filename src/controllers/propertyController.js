@@ -112,7 +112,7 @@ const readProperty = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const property = await Property.findOne({ where: { id: id } });
+    const property = await Property.findOne({ where: { id } });
 
     if (!property) {
       return res.status(404).send({ error: "No record found !!" });

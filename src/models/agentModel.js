@@ -96,7 +96,7 @@ module.exports = (sequelize, DataTypes) => {
 
   // Find agent using email and password \\
   Agent.findByCredentials = async (email, password) => {
-    const agent = await Agent.findOne({ email });
+    const agent = await Agent.findOne({ where: { email } });
 
     if (!agent) {
       throw new Error("Unable to login !!");

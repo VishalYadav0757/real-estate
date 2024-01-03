@@ -56,7 +56,11 @@ const logoutUser = async (req, res) => {
 
 // Read User Profile \\
 const readUserProfile = async (req, res) => {
-  res.status(200).send(req.user);
+  try {
+    res.status(200).send(req.user);
+  } catch (e) {
+    res.status(500).send(e);
+  }
 };
 
 // Update User Profile \\

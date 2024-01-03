@@ -79,7 +79,7 @@ module.exports = (sequelize, DataTypes) => {
 
   // Find user using email and password \\
   User.findByCredentials = async (email, password) => {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
       throw new Error("Unable to login !!");

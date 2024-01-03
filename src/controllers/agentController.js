@@ -56,7 +56,11 @@ const logoutAgent = async (req, res) => {
 
 // Read Agent Profile \\
 const readAgentProfile = async (req, res) => {
-  res.status(200).send(req.agent);
+  try {
+    res.status(200).send(req.agent);
+  } catch (e) {
+    res.status(500).send(e);
+  }
 };
 
 // Update Agent Profile \\
