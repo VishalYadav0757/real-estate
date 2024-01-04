@@ -8,7 +8,11 @@ const appointmentRouter = require("./routers/appointmentRoute");
 const app = express();
 
 var corsOptions = {
-  origin: ["https://localhost:3000", "https://real-estate-kjvp.onrender.com"],
+  origin: [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "https://real-estate-kjvp.onrender.com",
+  ],
 };
 
 // Middlewares \\
